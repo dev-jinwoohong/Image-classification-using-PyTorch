@@ -12,7 +12,7 @@ import numpy as np
 from model import SP_Classifier
 
 batch_size = 10
-number_of_labels = 5 
+number_of_labels = 5
 DEVICE = "cuda" if torch.cuda.is_available else "cpu"
 
 
@@ -36,6 +36,7 @@ print("The number of batches per epoch is: ", len(train_loader))
 classes = train_set.classes
 
 model = SP_Classifier()
+# model = Network()
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
@@ -149,10 +150,11 @@ def testClassess():
         for data in test_loader:
             images, labels = data
             images, labels = images.to(DEVICE), labels.to(DEVICE)
+            print(labels.shape)
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             c = (predicted == labels).squeeze()
-            for i in range(5):
+            for i in range(len(labels)):
                 label = labels[i]
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
@@ -165,7 +167,7 @@ def testClassess():
 if __name__ == "__main__":
     
     # Let's build our model
-    train(5)
+    train(1)
     print('Finished Training')
 
     # Test which classes performed well
