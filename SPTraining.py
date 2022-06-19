@@ -10,6 +10,7 @@ from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import numpy as np
 from model import SP_Classifier
+from new_model import ID_Classifier
 
 batch_size = 10
 number_of_labels = 5
@@ -35,8 +36,9 @@ print("The number of batches per epoch is: ", len(train_loader))
 
 classes = train_set.classes
 
-model = SP_Classifier()
-# model = Network()
+# model = SP_Classifier()
+model = ID_Classifier()
+
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
@@ -69,8 +71,8 @@ def train(num_epochs):
     
     best_accuracy = 0.0
 
-    
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
     print("The model will be running on", device, "device")
     
     model.to(device)
@@ -119,25 +121,18 @@ def imageshow(img):
     plt.show()
 
 
-# Function to test the model with a batch of images and show the labels predictions
 def testBatch():
-    # get batch of images from the test DataLoader  
     images, labels = next(iter(test_loader))
 
-    # show all images as one image grid
     imageshow(torchvision.utils.make_grid(images))
-   
-    # Show the real labels on the screen 
+    
     print('Real labels: ', ' '.join('%5s' % classes[labels[j]] 
                                for j in range(batch_size)))
   
-    # Let's see what if the model identifiers the  labels of those example
     outputs = model(images)
-    
-    # We got the probability for every 10 labels. The highest (max) probability should be correct label
+
     _, predicted = torch.max(outputs, 1)
     
-    # Let's show the predicted labels on the screen to compare with the real ones
     print('Predicted: ', ' '.join('%5s' % classes[predicted[j]] 
                               for j in range(batch_size)))
 
@@ -150,7 +145,7 @@ def testClassess():
         for data in test_loader:
             images, labels = data
             images, labels = images.to(DEVICE), labels.to(DEVICE)
-            print(labels.shape)
+            # print(labels.shape)
             outputs = model(images)
             _, predicted = torch.max(outputs, 1)
             c = (predicted == labels).squeeze()
@@ -166,15 +161,16 @@ def testClassess():
 
 if __name__ == "__main__":
     
-    # Let's build our model
-    train(1)
+    train(20)
     print('Finished Training')
 
     # Test which classes performed well
     testClassess()
     
     # Let's load the model we just created and test the accuracy per label
-    model = SP_Classifier()
+    
+    # model = SP_Classifier()
+    model = ID_Classifier()
     path = "myFirstModel.pth"
     model.load_state_dict(torch.load(path))
 
